@@ -53,7 +53,8 @@ markers <- FindAllMarkers(hsc, only.pos = TRUE, min.pct = 0.25, logfc.threshold 
 markers %>%
     group_by(cluster) %>%
     top_n(n = 10, wt = avg_log2FC) -> top10
-DoHeatmap(hsc, features = top10$gene) + NoLegend()    
+DoHeatmap(hsc, features = top10$gene) + NoLegend()  
+ggsave("hsc_wnn_0.5_sct_heatmap.png"), units = "in", width = 15, height = 15, dpi = 100)
 
 
 
