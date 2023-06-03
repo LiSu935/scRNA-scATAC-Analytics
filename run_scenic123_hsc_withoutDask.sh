@@ -42,9 +42,9 @@ f_final_loom=${output_dir}${prefix}'_scenic_integrated-output.loom'
 
 
 #STEP 0:
-python pre-pyscenic_pipeline.py --prefix ${prefix} --path_ad_file_from_seurat ${f_anndata_path_input} --wdir ${working_dir}
+python /storage/htc/joshilab/Su_Li/Spencerlab/scenic_application/scripts/scenic_application/pre-pyscenic_pipeline.py --prefix ${prefix} --path_ad_file_from_seurat ${f_anndata_path_input} --wdir ${working_dir}
 
-echo "step 1 finished"
+echo "step 0 finished"
 
 
 #STEP 1:
