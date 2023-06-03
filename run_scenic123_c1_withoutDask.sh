@@ -14,15 +14,35 @@
 echo "### Starting at: $(date) ###"
 
 source activate pyscenic
+
+prefix='hsc'
+working_dir='/storage/htc/joshilab/Su_Li/StowersHSC/scenic_application/'
+output_dir=${working_dir}'results/'${prefix}'/'
+
+f_anndata_path_input="/storage/htc/joshilab/Su_Li/StowersHSC/scenic_application/seurat_scenicInput/hsc_slim.h5ad"
+
+# path to unfiltered loom file (this will be created in the optional steps below)
+f_loom_path_unfilt=${output_dir}${prefix}"_unfiltered.loom"
+
+# # path to loom file with basic filtering applied (this will be created in the "initial filtering" step below). Optional.
+f_loom_path_scenic=${output_dir}${prefix}"_integrated.loom"
+
+# path to anndata object, which will be updated to store Scanpy results as they are generated below
+f_anndata_path=${output_dir}${prefix}"_anndata.h5ad"
+
+# path to pyscenic output
+f_pyscenic_output=${output_dir}${prefix}"_pyscenic_output.loom"
+
+# loom output, generated from a combination of Scanpy and pySCENIC results:
+f_final_loom=${output_dir}${prefix}'_scenic_integrated-output.loom'
+
+
+
+
+#STEP 0:
+python pre-pyscenic_pipeline.py --prefix ${prefix} --path_ad_file_from_seurat ${f_anndata_path_input} --wdir ${working_dir}
+
 #STEP 1:
-
-output_prefix='hsc'
-output_dir='/storage/htc/joshilab/Su_Li/Spencerlab/scenic_application/results/'
-output_dir=${output_dir}${output_prefix}/
-mkdir ${output_dir}
-
-
-f_loom_path_scenic='/storage/htc/joshilab/Su_Li/Spencerlab/scenic_application/integrated.loom'
 
 # human tfs
 #f_tfs='/storage/htc/joshilab/Su_Li/GuoquanZhang/scenic_application/hs_hgnc_curated_tfs.txt'
@@ -30,9 +50,9 @@ f_loom_path_scenic='/storage/htc/joshilab/Su_Li/Spencerlab/scenic_application/in
 # mouse tfs
 f_tfs='/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/allTFs_mm.txt'
 
-#pyscenic grn ${f_loom_path_scenic} ${f_tfs} -o ${output_dir}${output_prefix}adj.csv --num_workers 2
+#pyscenic grn ${f_loom_path_scenic} ${f_tfs} -o ${output_dir}${prefix}adj.csv --num_workers 2
 
-arboreto_with_multiprocessing.py ${f_loom_path_scenic} ${f_tfs} -o ${output_dir}${output_prefix}adj.csv --num_workers 2 --method grnboost2 --seed 777
+arboreto_with_multiprocessing.py ${f_loom_path_scenic} ${f_tfs} -o ${output_dir}${prefix}adj.csv --num_workers 2 --method grnboost2 --seed 777
 
 echo "step 1 finished"
 
