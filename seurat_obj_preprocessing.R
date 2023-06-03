@@ -42,6 +42,7 @@ print(colnames(hsc[[]]))
 
 # output the followings as the seurat to scenic:
 # unscaled :
+DefaultAssay(object = hsc) <- "SCT"
 c1_1 = hsc
 
 c1_1 = DietSeurat(c1_1, assays = "SCT",  scale.data = FALSE, dimreducs = c("harmony_rna", "pca"), graphs = TRUE)
