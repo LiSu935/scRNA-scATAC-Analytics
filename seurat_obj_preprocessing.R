@@ -1,12 +1,16 @@
-# this is for stowers HSC project.
+# this is for stowers HSC project. """conda activate r-mofa"""
 library(ggplot2)
+library(Seurat)
+library(SeuratDisk)
+library(Signac)
+library(cowplot)
+library(dplyr)
 
-install.packages('BiocManager')
-BiocManager::install('limma')
+hsc = readRDS("/storage/htc/joshilab/Su_Li/StowersHSC/from_ningzhang/multiome.motif.rds")
+prefix = "hsc"
+output_dir = '/storage/htc/joshilab/Su_Li/StowersHSC/scenic_application/seurat_scenicInput/'
 
-
-hsc = readRDS("multiome.motif.rds")
-colnames(hsc[[]])
+print(colnames(hsc[[]]))
 #  [1] "orig.ident"        "nCount_RNA"        "nFeature_RNA"
 # [4] "nCount_ATAC"       "nFeature_ATAC"     "rna_clusters"
 # [7] "nCount_SCT"        "nFeature_SCT"      "SCT_snn_res.0.5"
@@ -33,19 +37,20 @@ p1 = DimPlot(hsc, reduction = "wnn.umap", label = TRUE, label.size = 2.5, repel 
 p2 = DimPlot(hsc, reduction = "wnn.umap", label = TRUE, group.by = "orig.ident", label.size = 2.5, repel = TRUE) + ggtitle("orig.ident")
 p1 | p2
 
-# unscaled :
-hsc@assays$SCT@data
-# scaled:
-hsc@assays$SCT@scale.data
-
 # find the cluster name. print it out. Then
 print(colnames(hsc[[]]))
 
 # output the followings as the seurat to scenic:
 # unscaled :
-hsc@assays$SCT@data
+c1_1 = hsc
+
+c1_1 = DietSeurat(c1_1, assays = "SCT",  scale.data = FALSE, dimreducs = c("harmony_rna", "pca"), graphs = TRUE)
+SaveH5Seurat(c1_1, filename = paste0(output_dir, prefix, "_slim.h5Seurat"),overwrite = TRUE)
+Convert(paste0(output_dir, prefix, "_slim.h5Seurat"), dest = "h5ad", overwrite = TRUE)
+
+
 # scaled:
-hsc@assays$SCT@scale.data 
+#hsc@assays$SCT@scale.data 
 
 DefaultAssay = "RNA"
 markers <- FindAllMarkers(hsc, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
@@ -53,41 +58,18 @@ markers <- FindAllMarkers(hsc, only.pos = TRUE, min.pct = 0.25, logfc.threshold 
 markers %>%
     group_by(cluster) %>%
     top_n(n = 10, wt = avg_log2FC) -> top10
+
+v=colnames(hsc[[]])
+suffix = v[length(v)-1]
+
+write.table(top10, file=paste(output_dir, prefix, "_", suffix, "_goodmarkers.txt",sep=""), row.names = TRUE, col.names = NA, sep="\t")
+
 DoHeatmap(hsc, features = top10$gene) + NoLegend()  
-ggsave("hsc_wnn_0.5_sct_heatmap.png"), units = "in", width = 15, height = 15, dpi = 100)
+
+ggsave(paste0(output_dir, prefix, "_", suffix,"_heatmap.png"), units = "in", width = 15, height = 15, dpi = 100)
+
+saveRDS(hsc, paste0(output_dir,prefix,"_ob.rds"))
 
 
 
 
-
-# just for checking:
-
-day0_10x = Read10X_h5("/storage/htc/joshilab/Su_Li/StowersHSC/data/round2/Day0.rna_atac.filtered_feature_barcode_matrix.h5")
-
-# extract RNA and ATAC data
-rna_counts <- day0_10x$`Gene Expression`
-atac_counts <- day0_10x$Peaks
-
-# Create Seurat object
-pbmc <- CreateSeuratObject(counts = rna_counts)
-pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
-
-# Now add in the ATAC-seq data
-# we'll only use peaks in standard chromosomes
-grange.counts <- StringToGRanges(rownames(atac_counts), sep = c(":", "-"))
-grange.use <- seqnames(grange.counts) %in% standardChromosomes(grange.counts)
-atac_counts <- atac_counts[as.vector(grange.use), ]
-annotations <- GetGRangesFromEnsDb(ensdb = EnsDb.Hsapiens.v86)
-seqlevelsStyle(annotations) <- 'UCSC'
-genome(annotations) <- "hg38"
-
-frag.file <- "../data/pbmc_granulocyte_sorted_10k_atac_fragments.tsv.gz"
-chrom_assay <- CreateChromatinAssay(
-   counts = atac_counts,
-   sep = c(":", "-"),
-   genome = 'hg38',
-   fragments = frag.file,
-   min.cells = 10,
-   annotation = annotations
- )
-pbmc[["ATAC"]] <- chrom_assay
