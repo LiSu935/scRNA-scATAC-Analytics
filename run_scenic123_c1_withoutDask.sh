@@ -18,8 +18,11 @@ source activate pyscenic
 prefix='hsc'
 working_dir='/storage/htc/joshilab/Su_Li/StowersHSC/scenic_application/'
 output_dir=${working_dir}'results/'${prefix}'/'
-
 f_anndata_path_input="/storage/htc/joshilab/Su_Li/StowersHSC/scenic_application/seurat_scenicInput/hsc_slim.h5ad"
+
+cd ${working_dir}
+mkdir ${working_dir}'results/'
+mkdir ${output_dir}
 
 # path to unfiltered loom file (this will be created in the optional steps below)
 f_loom_path_unfilt=${output_dir}${prefix}"_unfiltered.loom"
@@ -38,17 +41,19 @@ f_final_loom=${output_dir}${prefix}'_scenic_integrated-output.loom'
 
 
 
-
 #STEP 0:
 python pre-pyscenic_pipeline.py --prefix ${prefix} --path_ad_file_from_seurat ${f_anndata_path_input} --wdir ${working_dir}
+
+echo "step 1 finished"
+
 
 #STEP 1:
 
 # human tfs
-#f_tfs='/storage/htc/joshilab/Su_Li/GuoquanZhang/scenic_application/hs_hgnc_curated_tfs.txt'
+f_tfs='/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/allTFs_hg38.txt'
 
 # mouse tfs
-f_tfs='/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/allTFs_mm.txt'
+#f_tfs='/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/allTFs_mm.txt'
 
 #pyscenic grn ${f_loom_path_scenic} ${f_tfs} -o ${output_dir}${prefix}adj.csv --num_workers 2
 
@@ -60,22 +65,22 @@ echo "step 1 finished"
 
 # ranking databases
 # human
-#f_db_names='/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/hg19-tss-centered-5kb-7species.mc9nr.feather'
+f_db_names='/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/hg19-tss-centered-5kb-7species.mc9nr.feather'
 
 # mouse
-f_db_names='/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/mm9-tss-centered-5kb-7species.mc9nr.feather'
+#f_db_names='/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/mm9-tss-centered-5kb-7species.mc9nr.feather'
 
 # motif databases
 # human
-#f_motif_path="/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/motifs-v9-nr.hgnc-m0.001-o0.0.tbl"
+f_motif_path="/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/motifs-v9-nr.hgnc-m0.001-o0.0.tbl"
 
 # mouse
-f_motif_path="/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/motifs-v9-nr.mgi-m0.001-o0.0.tbl"
-pyscenic ctx ${output_dir}${output_prefix}adj.csv \
+#f_motif_path="/storage/htc/joshilab/Su_Li/tools_related/scenic_AuxiliaryDatasets/motifs-v9-nr.mgi-m0.001-o0.0.tbl"
+pyscenic ctx ${output_dir}${prefix}adj.csv \
     ${f_db_names} \
     --annotations_fname ${f_motif_path} \
     --expression_mtx_fname ${f_loom_path_scenic} \
-    --output ${output_dir}${output_prefix}reg.csv \
+    --output ${output_dir}${prefix}reg.csv \
     --mask_dropouts \
     --num_workers 20 \
     --mode "custom_multiprocessing"
