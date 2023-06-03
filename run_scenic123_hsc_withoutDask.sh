@@ -10,7 +10,7 @@
 #SBATCH --time 2-00:00    
 ## labels and outputs
 #SBATCH --job-name=scenic_withoutDask-%j.out
-#SBATCH --output=scenic_c1-%j.out  # %j is the unique jobID
+#SBATCH --output=scenic_hsc-%j.out  # %j is the unique jobID
 echo "### Starting at: $(date) ###"
 
 source activate pyscenic
