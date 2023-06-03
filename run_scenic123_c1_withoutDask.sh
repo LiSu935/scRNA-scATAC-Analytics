@@ -16,7 +16,7 @@ echo "### Starting at: $(date) ###"
 source activate pyscenic
 #STEP 1:
 
-output_prefix='c1_'
+output_prefix='hsc'
 output_dir='/storage/htc/joshilab/Su_Li/Spencerlab/scenic_application/results/'
 output_dir=${output_dir}${output_prefix}/
 mkdir ${output_dir}
