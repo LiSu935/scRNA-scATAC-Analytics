@@ -71,6 +71,41 @@ ggsave(paste0(output_dir, prefix, "_", suffix,"_heatmap.png"), units = "in", wid
 
 saveRDS(hsc, paste0(output_dir,prefix,"_ob.rds"))
 
+output_dir = '/storage/htc/joshilab/Su_Li/StowersHSC/scenic_application/seurat_scenicInput/'
+prefix = "hsc"
+hsc = readRDS(paste0(output_dir,prefix,"_ob.rds"))
+print(colnames(hsc[[]]))
+
+hsc <- FindClusters(hsc, graph.name = "wsnn", algorithm = 3, verbose = FALSE, res = 0.6)
+hsc <- FindClusters(hsc, graph.name = "wsnn", algorithm = 3, verbose = FALSE, res = 0.4)
+
+v=colnames(hsc[[]])
+suffix = v[length(v)]
+
+p1 = DimPlot(hsc, reduction = "wnn.umap", label = TRUE, label.size = 2.5, repel = TRUE) + ggtitle("WNN")
+p2 = DimPlot(hsc, reduction = "wnn.umap", label = TRUE, group.by = "orig.ident", label.size = 2.5, repel = TRUE) + ggtitle("orig.ident")
+p1 | p2
+ggsave(paste0(output_dir,prefix,"wnn_umap_ident.png"), units = "in", width = 10, height = 5, dpi = 100)
+
+DefaultAssay = "RNA"
+markers <- FindAllMarkers(hsc, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+    
+markers %>%
+    group_by(cluster) %>%
+    top_n(n = 10, wt = avg_log2FC) -> top10
+
+write.table(top10, file=paste(output_dir, prefix, "_", suffix, "_goodmarkers.txt",sep=""), row.names = TRUE, col.names = NA, sep="\t")
+
+DoHeatmap(hsc, features = top10$gene) + NoLegend()  
+ggsave(paste0(output_dir, prefix, "_", suffix,"_heatmap.png"), units = "in", width = 15, height = 15, dpi = 100)
 
 
+DefaultAssay(object = hsc) <- "SCT"
+c1_1 = hsc
 
+c1_1 = DietSeurat(c1_1, assays = "SCT",  scale.data = TRUE, dimreducs = c("wnn.umap","harmony_rna"), graphs = TRUE)
+
+SaveH5Seurat(c1_1, filename = paste0(output_dir, prefix, "_integrated.h5Seurat"),overwrite = TRUE)
+Convert(paste0(output_dir, prefix, "_integrated.h5Seurat"), dest = "h5ad", overwrite = TRUE)
+
+saveRDS(hsc, paste0(output_dir,prefix,"_ob.rds"))
