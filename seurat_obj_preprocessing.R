@@ -46,8 +46,9 @@ DefaultAssay(object = hsc) <- "SCT"
 c1_1 = hsc
 
 c1_1 = DietSeurat(c1_1, assays = "SCT",  scale.data = FALSE, dimreducs = c("harmony_rna", "pca"), graphs = TRUE)
-SaveH5Seurat(c1_1, filename = paste0(output_dir, prefix, "_slim.h5Seurat"),overwrite = TRUE)
-Convert(paste0(output_dir, prefix, "_slim.h5Seurat"), dest = "h5ad", overwrite = TRUE)
+# Already saved once from interactive job, skip now
+#SaveH5Seurat(c1_1, filename = paste0(output_dir, prefix, "_slim.h5Seurat"),overwrite = TRUE)
+#Convert(paste0(output_dir, prefix, "_slim.h5Seurat"), dest = "h5ad", overwrite = TRUE)
 
 
 # scaled:
@@ -69,11 +70,11 @@ DoHeatmap(hsc, features = top10$gene) + NoLegend()
 
 ggsave(paste0(output_dir, prefix, "_", suffix,"_heatmap.png"), units = "in", width = 15, height = 15, dpi = 100)
 
-saveRDS(hsc, paste0(output_dir,prefix,"_ob.rds"))
+#saveRDS(hsc, paste0(output_dir,prefix,"_ob.rds"))
 
 output_dir = '/storage/htc/joshilab/Su_Li/StowersHSC/scenic_application/seurat_scenicInput/'
 prefix = "hsc"
-hsc = readRDS(paste0(output_dir,prefix,"_ob.rds"))
+#hsc = readRDS(paste0(output_dir,prefix,"_ob.rds"))
 print(colnames(hsc[[]]))
 
 hsc <- FindClusters(hsc, graph.name = "wsnn", algorithm = 3, verbose = FALSE, res = 0.6)
@@ -99,13 +100,14 @@ write.table(top10, file=paste(output_dir, prefix, "_", suffix, "_goodmarkers.txt
 DoHeatmap(hsc, features = top10$gene) + NoLegend()  
 ggsave(paste0(output_dir, prefix, "_", suffix,"_heatmap.png"), units = "in", width = 15, height = 15, dpi = 100)
 
-
-DefaultAssay(object = hsc) <- "SCT"
-c1_1 = hsc
-
-c1_1 = DietSeurat(c1_1, assays = "SCT",  scale.data = TRUE, dimreducs = c("wnn.umap","harmony_rna"), graphs = TRUE)
-
-SaveH5Seurat(c1_1, filename = paste0(output_dir, prefix, "_integrated.h5Seurat"),overwrite = TRUE)
-Convert(paste0(output_dir, prefix, "_integrated.h5Seurat"), dest = "h5ad", overwrite = TRUE)
-
 saveRDS(hsc, paste0(output_dir,prefix,"_ob.rds"))
+
+#DefaultAssay(object = hsc) <- "SCT"
+#c1_1 = hsc
+
+#c1_1 = DietSeurat(c1_1, assays = "SCT",  scale.data = TRUE, dimreducs = c("wnn.umap","harmony_rna"), graphs = TRUE)
+
+#SaveH5Seurat(c1_1, filename = paste0(output_dir, prefix, "_integrated.h5Seurat"),overwrite = TRUE)
+#Convert(paste0(output_dir, prefix, "_integrated.h5Seurat"), dest = "h5ad", overwrite = TRUE)
+
+
